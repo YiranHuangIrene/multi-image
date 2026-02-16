@@ -357,7 +357,6 @@ class Llava_OneVision(lmms):
                 kwargs["modalities"] = ["video"]
                 self._config.mm_spatial_pool_stride = self.mm_spatial_pool_stride
                 self._config.mm_spatial_pool_mode = self.mm_spatial_pool_mode
-
             with torch.inference_mode():
                 outputs = self.model(
                     input_ids=full_input_ids,
@@ -548,7 +547,7 @@ class Llava_OneVision(lmms):
             pad_token_ids = self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else self.tokenizer.eos_token_id
             input_ids = self.pad_sequence(input_ids_list, batch_first=True, padding_value=pad_token_ids).to(self.device)
             attention_masks = input_ids.ne(pad_token_ids).to(self.device)
-
+            
             if task_type == "image":
                 gen_kwargs["image_sizes"] = [batched_visuals[0][idx].size for idx in range(len(batched_visuals[0]))]
             elif task_type == "video":

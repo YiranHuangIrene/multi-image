@@ -14,12 +14,6 @@
 
 import sys
 import os
-current_dir = os.path.dirname(os.path.abspath(__file__))
-llava_repo_path = os.path.dirname(os.path.dirname(current_dir))
-sys.path.insert(0, llava_repo_path) # such that we import llava from the folder instead of the environment
-keys_to_remove = [k for k in sys.modules if k.startswith('llava')]
-for k in keys_to_remove:
-    del sys.modules[k]
 import shutil
 
 from transformers import AutoTokenizer, AutoModelForCausalLM, AutoConfig, BitsAndBytesConfig
