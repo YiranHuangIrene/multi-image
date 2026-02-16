@@ -21,8 +21,6 @@ dependencies = [
     "sacrebleu>=1.5.0",
     "scikit-learn>=0.24.1",
     "sqlitedict>=2.1.0",
-    "torch>=2.1.0", # to enable sdpa mode for running 34B model on one 80GB GPU
-    "torchvision>=0.16.0",
     "timm",
     "einops",
     "ftfy",
@@ -35,7 +33,7 @@ dependencies = [
     "yt-dlp",
     "pycocoevalcap",
     "tqdm-multiprocess",
-    "transformers>=4.39.2",
+    "transformers==4.45.2",
     "transformers-stream-generator",
     "zstandard",
     "pillow",
@@ -61,6 +59,11 @@ dependencies = [
     "math-verify",
     "matplotlib>=3.10.8",
     "seaborn>=0.13.2",
+    "decord>=0.6.0",
+    "torch==2.5.1",
+    "torchvision>=0.20.1",
+    "flash-attn>=2.8.3",
+    "open-clip-torch>=3.2.0",
 ]
 
 [project.optional-dependencies]
