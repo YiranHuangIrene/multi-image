@@ -28,13 +28,13 @@ if not _has_qwen_vl:
     eval_logger.warning("Failed to import qwen_vl_utils; Please install it via `pip install qwen-vl-utils`")
 
 
-@register_model("qwen2_vl_scaled")
+@register_model("qwen2_5_vl_delimiter_scaling")
 class Qwen2_5_VL_Delimiter_Scaling(Qwen2_5_VL):
-    def __init__(self, scaling_factor=5.0, scaling_layers="0,1,2,3", **kwargs):
+    def __init__(self, scaling_factor=5.0, scaling_layers="0-1-2-3", **kwargs):
         super().__init__(**kwargs)
         # Parse arguments
         self.scaling_factor = float(scaling_factor)
-        self.target_layers = [int(x) for x in scaling_layers.split(",")]
+        self.target_layers = [int(x) for x in scaling_layers.split("-")]
         
         # Identify delimiter tokens 
         assert self.model.config.vision_start_token_id is not None, "Vision start token ID is not found in the model config"
