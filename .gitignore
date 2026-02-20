@@ -10,3 +10,4 @@ wheels/
 .venv
 reproduce_results_llava_ov.ipynb
 lmms-eval/examples/docs
+check_qwen3_vl.ipynb
