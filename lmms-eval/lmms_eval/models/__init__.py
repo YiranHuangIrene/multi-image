@@ -101,6 +101,8 @@ AVAILABLE_CHAT_TEMPLATE_MODELS = {
     "qwen3_vl": "Qwen3_VL",
     "qwen2_5_vl": "Qwen2_5_VL",
     "qwen2_5_vl_delimiter_scaling": "Qwen2_5_VL_Delimiter_Scaling",
+    "qwen2_5_vl_mask_attention": "Qwen2_5_VL_Mask_Attention",
+    "qwen3_vl_mask_attention": "Qwen3_VL_Mask_Attention",
     "thyme": "Thyme",
     "openai_compatible": "OpenAICompatible",
     "vllm": "VLLM",

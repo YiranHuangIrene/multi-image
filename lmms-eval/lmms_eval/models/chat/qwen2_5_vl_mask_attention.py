@@ -32,13 +32,14 @@ class Qwen2_5_VL_Mask_Attention(Qwen2_5_VL):
         self.mask_layers = str(mask_layers)
         self.hooks = []
         self.image_token_indices = []
+        self._cached_cross_mask = None
         if self.mask_layers:
             self.parse_mask_layers()
             self._register_attention_hooks()
-
+    
     def parse_mask_layers(self):
         if self.mask_layers == "all":
-            self.mask_layers_indices = list(range(len(self.model.model.layers)))
+            self.mask_layers_indices = list(range(len(self.model.model.language_model.layers)))
             return
 
         indices = set()
@@ -64,19 +65,8 @@ class Qwen2_5_VL_Mask_Attention(Qwen2_5_VL):
                     print(f"Warning: Could not parse layer index '{segment}'")
         
         self.mask_layers_indices = sorted(list(indices))
-
-    def _extract_image_token_positions(self, input_ids):
-        """
-        Extract image token positions from input_ids using vision_start_token_id and vision_end_token_id.
-        Returns a list of tuples (start_idx, end_idx) for each image in each batch.
         
-        Args:
-            input_ids: Tensor of shape [batch_size, seq_len]
-            
-        Returns:
-            List of lists, where each inner list contains (start, end) tuples for images in that batch
-        """
-        # Get vision token IDs from the model config
+    def _extract_image_token_positions(self, input_ids):
         vision_start_id = self.model.config.vision_start_token_id
         vision_end_id = self.model.config.vision_end_token_id
         
@@ -85,27 +75,23 @@ class Qwen2_5_VL_Mask_Attention(Qwen2_5_VL):
         
         for batch_idx in range(batch_size):
             batch_ranges = []
-            ids = input_ids[batch_idx].cpu().tolist()
+            # Pure tensor operations on the GPU
+            starts = torch.nonzero(input_ids[batch_idx] == vision_start_id, as_tuple=True)[0]
+            ends = torch.nonzero(input_ids[batch_idx] == vision_end_id, as_tuple=True)[0]
             
-            # Find all vision start and end positions
-            start_positions = [i for i, token_id in enumerate(ids) if token_id == vision_start_id]
-            end_positions = [i for i, token_id in enumerate(ids) if token_id == vision_end_id]
-            
-            # Pair them up (assuming they're properly matched)
-            if len(start_positions) != len(end_positions):
+            if len(starts) != len(ends):
                 eval_logger.warning(
                     f"Batch {batch_idx}: Mismatched vision tokens - "
-                    f"{len(start_positions)} starts vs {len(end_positions)} ends"
+                    f"{len(starts)} starts vs {len(ends)} ends"
                 )
             
-            for start, end in zip(start_positions, end_positions):
+            for start, end in zip(starts, ends):
                 # Store range (inclusive of start, inclusive of end)
                 # The range includes both delimiter tokens and the image tokens between them
                 batch_ranges.append((start, end + 1))
             
             image_ranges.append(batch_ranges)
-            eval_logger.debug(f"Batch {batch_idx}: Found {len(batch_ranges)} images at positions {batch_ranges}")
-        
+            
         return image_ranges
         
     def _register_attention_hooks(self):
@@ -118,8 +104,7 @@ class Qwen2_5_VL_Mask_Attention(Qwen2_5_VL):
         print("Registered top-level pre-forward hook to extract image token indices")
         eval_logger.info("Registered top-level pre-forward hook to extract image token indices")
         # Fallback for models that might nest the language model differently
-        language_model = self.model.model
-        layers = language_model.layers
+        layers = self.model.model.language_model.layers
         for layer_idx in self.mask_layers_indices:
             if layer_idx < len(layers):
                 layer = layers[layer_idx]
@@ -141,59 +126,50 @@ class Qwen2_5_VL_Mask_Attention(Qwen2_5_VL):
     
     def _create_extract_indices_hook(self):
         def extract_indices_hook(module, args, kwargs):
-            # Extract input_ids from kwargs or positional args
-            input_ids = kwargs.get('input_ids')
-            if input_ids is None and len(args) > 0:
-                input_ids = args[0]
-                
-            # Check if input_ids is a valid tensor
+            input_ids = kwargs.get('input_ids', args[0] if len(args) > 0 else None)
             if isinstance(input_ids, torch.Tensor) and input_ids.ndim >= 2:
-                # Only update indices during the prefill phase (seq_len > 1).
-                # During decoding (seq_len == 1), we keep the previously extracted indices.
-                if input_ids.shape[1] > 1:
+                q_len = input_ids.shape[1]
+                if q_len > 1: # Prefill phase
                     self.image_token_indices = self._extract_image_token_positions(input_ids)
-                    eval_logger.debug(f"Automatically extracted image token indices: {self.image_token_indices}")
-            
+                    
+                    # PRE-COMPUTE AND CACHE THE MASK HERE
+                    batch_size = input_ids.shape[0]
+                    self._cached_cross_mask = self._create_cross_image_attention_mask(
+                        batch_size, q_len, q_len, 
+                        self.image_token_indices, 
+                        input_ids.device, 
+                        self.model.dtype
+                    )
+                else:
+                    # Clear cache during decoding to save memory
+                    self._cached_cross_mask = None 
+                    
             return args, kwargs
             
         return extract_indices_hook
     
     def _create_attention_mask_hook(self, layer_idx):
         def attention_mask_hook(module, args, kwargs):
-            if not self.image_token_indices:
-                print("No image token indices found! Skipping attention masking.")
+            if not self.image_token_indices or self._cached_cross_mask is None:
                 return args, kwargs
 
-            # Retrieve hidden_states to determine query sequence length
             hidden_states = kwargs.get('hidden_states', args[0] if len(args) > 0 else None)
             if hidden_states is None:
                 return args, kwargs
-            batch_size, q_len, _ = hidden_states.shape
-            
-            # Skip custom masking during the decoding phase (q_len == 1)
-            # We only mask images from each other during the prefill phase.
-            if q_len == 1:
+                
+            q_len = hidden_states.shape[1]
+            if q_len == 1: # Decoding phase
                 return args, kwargs
 
             attention_mask = kwargs.get('attention_mask', args[1] if len(args) > 1 else None)
-            device = hidden_states.device
-            kv_len = q_len # Assumes prefill where q_len == kv_len
-
-            # Create cross-image mask [batch_size, 1, q_len, kv_len]
-            cross_mask = self._create_cross_image_attention_mask(
-                batch_size, q_len, kv_len, self.image_token_indices, device, hidden_states.dtype
-            )
-            
-            # Additive masking
             if attention_mask is not None:
-                combined_mask = attention_mask + cross_mask
+                combined_mask = attention_mask + self._cached_cross_mask
             else:
-                combined_mask = cross_mask
+                combined_mask = self._cached_cross_mask
 
-            # Inject the combined mask back into kwargs/args
             kwargs['attention_mask'] = combined_mask
-                
             return args, kwargs
+            
         return attention_mask_hook
     
     def _create_cross_image_attention_mask(self, batch_size, q_len, kv_len, image_token_indices, device, dtype):
@@ -239,9 +215,13 @@ class Qwen2_5_VL_Mask_Attention(Qwen2_5_VL):
             for i, (start_i, end_i) in enumerate(image_ranges):
                 for j, (start_j, end_j) in enumerate(image_ranges):
                     if i != j:  # Different images
-                        # Prevent tokens in image i from attending to tokens in image j
-                        # Using -inf ensures softmax gives 0 probability to these positions
+
                         mask[batch_idx, 0, start_i:end_i, start_j:end_j] = float('-inf')
-        
+        # Apply causal mask
+        causal_mask = torch.triu(
+            torch.ones((q_len, kv_len), device=device, dtype=torch.bool), 
+            diagonal=1
+        )
+        mask = mask.masked_fill(causal_mask, float('-inf'))
         return mask
     
