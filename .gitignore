@@ -11,3 +11,4 @@ wheels/
 reproduce_results_llava_ov.ipynb
 lmms-eval/examples/docs
 notebooks/
+uv.lock
