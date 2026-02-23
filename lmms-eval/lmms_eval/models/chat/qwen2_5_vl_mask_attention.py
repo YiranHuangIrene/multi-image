@@ -130,6 +130,9 @@ class Qwen2_5_VL_Mask_Attention(Qwen2_5_VL):
             if isinstance(input_ids, torch.Tensor) and input_ids.ndim >= 2:
                 q_len = input_ids.shape[1]
                 if q_len > 1: # Prefill phase
+                    if self._cached_cross_mask is not None:
+                        del self._cached_cross_mask
+                        self._cached_cross_mask = None
                     self.image_token_indices = self._extract_image_token_positions(input_ids)
                     
                     # PRE-COMPUTE AND CACHE THE MASK HERE
@@ -141,8 +144,9 @@ class Qwen2_5_VL_Mask_Attention(Qwen2_5_VL):
                         self.model.dtype
                     )
                 else:
-                    # Clear cache during decoding to save memory
-                    self._cached_cross_mask = None 
+                    if self._cached_cross_mask is not None:
+                        del self._cached_cross_mask
+                        self._cached_cross_mask = None
                     
             return args, kwargs
             
@@ -192,8 +196,10 @@ class Qwen2_5_VL_Mask_Attention(Qwen2_5_VL):
             Values are 0 (no masking) or -inf (block attention)
         """
         # Initialize mask with zeros (no masking)
-        mask = torch.zeros((batch_size, 1, q_len, kv_len), dtype=dtype, device=device)
-        
+        mask = torch.zeros((q_len, kv_len), dtype=dtype, device=device)
+        mask = torch.triu(mask.fill_(float('-inf')), diagonal=1)
+        mask = mask.unsqueeze(0).unsqueeze(0).expand(batch_size, 1, q_len, kv_len)
+        mask = mask.clone()
         # For each batch item
         for batch_idx in range(batch_size):
             if batch_idx >= len(image_token_indices):
@@ -215,13 +221,7 @@ class Qwen2_5_VL_Mask_Attention(Qwen2_5_VL):
             for i, (start_i, end_i) in enumerate(image_ranges):
                 for j, (start_j, end_j) in enumerate(image_ranges):
                     if i != j:  # Different images
-
                         mask[batch_idx, 0, start_i:end_i, start_j:end_j] = float('-inf')
-        # Apply causal mask
-        causal_mask = torch.triu(
-            torch.ones((q_len, kv_len), device=device, dtype=torch.bool), 
-            diagonal=1
-        )
-        mask = mask.masked_fill(causal_mask, float('-inf'))
         return mask
+    
     
