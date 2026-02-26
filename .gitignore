@@ -10,6 +10,9 @@ wheels/
 .venv
 reproduce_results_llava_ov.ipynb
 lmms-eval/examples/docs
+notebooks/
+uv.lock
+lmms-eval/check_internvl_3.ipynb
 check_qwen3_vl.ipynb
 lmms-eval/results_internvl3_mask_attention.ipynb
 lmms-eval/results_llava_ov_mask_attention.ipynb
