@@ -1,6 +1,7 @@
 import time
 from typing import List
 
+import torch
 from loguru import logger as eval_logger
 from tqdm import tqdm
 
@@ -129,41 +130,49 @@ class Qwen2_5_VL(Qwen2_5_VLSimple):
                 current_gen_kwargs["top_k"] = None
 
             start_time = time.time()
-            cont = self.model.generate(
-                **inputs,
-                eos_token_id=self.tokenizer.eos_token_id,
-                pad_token_id=pad_token_id,
-                do_sample=current_gen_kwargs["do_sample"],
-                temperature=current_gen_kwargs["temperature"],
-                top_p=current_gen_kwargs["top_p"],
-                num_beams=current_gen_kwargs["num_beams"],
-                max_new_tokens=current_gen_kwargs["max_new_tokens"],
-                top_k=current_gen_kwargs.get("top_k", None),
-                use_cache=self.use_cache,
-            )
-            end_time = time.time()
+            # If OOM, report the task 
+            try:
+                cont = self.model.generate(
+                    **inputs,
+                    eos_token_id=self.tokenizer.eos_token_id,
+                    pad_token_id=pad_token_id,
+                    do_sample=current_gen_kwargs["do_sample"],
+                    temperature=current_gen_kwargs["temperature"],
+                    top_p=current_gen_kwargs["top_p"],
+                    num_beams=current_gen_kwargs["num_beams"],
+                    max_new_tokens=current_gen_kwargs["max_new_tokens"],
+                    top_k=current_gen_kwargs.get("top_k", None),
+                    use_cache=self.use_cache,
+                )
+                
+                end_time = time.time()
 
-            generated_ids_trimmed = [out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, cont)]
-            answers = self.processor.batch_decode(
-                generated_ids_trimmed,
-                skip_special_tokens=True,
-                clean_up_tokenization_spaces=False,
-            )
+                generated_ids_trimmed = [out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, cont)]
+                answers = self.processor.batch_decode(
+                    generated_ids_trimmed,
+                    skip_special_tokens=True,
+                    clean_up_tokenization_spaces=False,
+                )
 
-            # Calculate timing metrics for batch
-            e2e_latency += end_time - start_time
-            total_tokens += sum(len(ids) for ids in generated_ids_trimmed)
+                # Calculate timing metrics for batch
+                e2e_latency += end_time - start_time
+                total_tokens += sum(len(ids) for ids in generated_ids_trimmed)
 
-            for ans, context in zip(answers, texts):
-                clean_ans = parse_reasoning_model_answer(ans)
-                res.append(clean_ans)
-                self.cache_hook.add_partial("generate_until", (context, gen_kwargs), clean_ans)
-
-                eval_logger.debug(f"Question: {context}")
-                eval_logger.debug(f"Model Raw Response: {ans}")
-                eval_logger.debug(f"Model Clean Response: {clean_ans}")
-            # reorder this group of results back to original unsorted form
-            pbar.update(1)
+                for ans, context in zip(answers, texts):
+                    clean_ans = parse_reasoning_model_answer(ans)
+                    res.append(clean_ans)
+                    self.cache_hook.add_partial("generate_until", (context, gen_kwargs), clean_ans)
+                    eval_logger.debug(f"Question: {context}")
+                    eval_logger.debug(f"Model Raw Response: {ans}")
+                    eval_logger.debug(f"Model Clean Response: {clean_ans}")
+                pbar.update(1)
+            except torch.cuda.OutOfMemoryError as e:
+                print(f"OOM, skip the task")
+                res.append("")
+                # reorder this group of results back to original unsorted form
+                pbar.update(1)
+                continue   
+            
         res = re_ords.get_original(res)
 
         # Calculate average speed

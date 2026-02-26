@@ -339,7 +339,7 @@ class Qwen2_5_VL(lmms):
                 current_gen_kwargs["do_sample"] = False
                 current_gen_kwargs["temperature"] = None
                 current_gen_kwargs["top_p"] = None
-
+            # breakpoint()
             cont = self.model.generate(
                 **inputs,
                 eos_token_id=self.tokenizer.eos_token_id,
@@ -557,7 +557,7 @@ class Qwen2_5_VL(lmms):
                     current_gen_kwargs["do_sample"] = False
                     current_gen_kwargs["temperature"] = None
                     current_gen_kwargs["top_p"] = None
-
+                breakpoint()
                 cont = self.model.generate(
                     **inputs,
                     eos_token_id=self.tokenizer.eos_token_id,
