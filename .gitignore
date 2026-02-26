@@ -12,3 +12,4 @@ reproduce_results_llava_ov.ipynb
 lmms-eval/examples/docs
 notebooks/
 uv.lock
+lmms-eval/check_internvl_3.ipynb
