@@ -38,9 +38,9 @@ AVAILABLE_SIMPLE_MODELS = {
     "internvl": "InternVLChat",
     "internvl2": "InternVL2",
     "internvl3": "InternVL3",
-    "internvl3_mask_attention": "InternVL3_MaskAttention",
+    # "internvl3_mask_attention": "InternVL3_MaskAttention", # deprecated
     "internvl3_5": "InternVL3_5",
-    "internvl3_5_mask_attention": "InternVL3_5_MaskAttention",
+    # "internvl3_5_mask_attention": "InternVL3_5_MaskAttention", # deprecated
     "kimi_audio": "KimiAudio",
     "llama_vid": "LLaMAVid",
     "llama_vision": "LlamaVision",
@@ -99,6 +99,7 @@ AVAILABLE_SIMPLE_MODELS = {
 AVAILABLE_CHAT_TEMPLATE_MODELS = {
     "bagel_lmms_engine": "BagelLmmsEngine",
     "internvl_hf": "InternVLHf",
+    "internvl_hf_mask_attention": "InternVLHf_Mask_Attention",
     "llava_hf": "LlavaHf",
     "qwen3_vl": "Qwen3_VL",
     "qwen2_5_vl": "Qwen2_5_VL",

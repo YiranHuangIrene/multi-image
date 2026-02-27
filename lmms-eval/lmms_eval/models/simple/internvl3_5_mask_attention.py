@@ -1,3 +1,7 @@
+"""
+File deprecated Check internvl3_mask_attention
+"""
+
 from lmms_eval.api.registry import register_model
 from lmms_eval.models.simple.internvl3_mask_attention import InternVL3_MaskAttention
 

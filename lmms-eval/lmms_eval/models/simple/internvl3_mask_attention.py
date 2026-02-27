@@ -1,3 +1,7 @@
+"""
+File deprecated since it does not work with flash attention and removing flash attention seems to not work. New implementation only done with hf. 
+"""
+
 from __future__ import annotations
 
 import logging
@@ -29,7 +33,9 @@ class InternVL3_MaskAttention(InternVL3):
     """
 
     def __init__(self, mask_layers: Optional[str] = None, **kwargs):
-        mask_layers_str = None if mask_layers is None else str(mask_layers)
+        mask_layers_str = None if (mask_layers is None or mask_layers == "baseline") else str(mask_layers)
+        if mask_layers_str:
+            kwargs["use_flash_attn"] = False 
 
         super().__init__(**kwargs)
         self.mask_layers = mask_layers_str
@@ -41,14 +47,20 @@ class InternVL3_MaskAttention(InternVL3):
         self._last_attn_impl: Optional[str] = None
 
         # Set before generation, consumed by hooks.
-        self.image_token_indices: Optional[List[List[Dict[str, int]]]] = None
+        self.image_token_indices: Optional[List[List[Dict[str, int]]]] = []
         self._pending_num_patches_list: Optional[List[int]] = None
         self._cached_mask: Optional[torch.Tensor] = None
 
+        # save the delimiter tokens for the images to be used to find the image tokens
+        self.vision_start_id = self.tokenizer.convert_tokens_to_ids("<img>")
+        self.vision_end_id = self.tokenizer.convert_tokens_to_ids("</img>")
+        self.vision_context_id = self.tokenizer.convert_tokens_to_ids("<IMG_CONTEXT>")
+        
         if self.mask_layers:
             self._setup_hybrid_attn_switching()
             self._parse_mask_layers()
             self._register_attention_hooks()
+
 
     def _setup_hybrid_attn_switching(self) -> None:
         """Switch LM attention backend by phase: prefill->eager, decode->flash_attention_2."""
@@ -157,7 +169,86 @@ class InternVL3_MaskAttention(InternVL3):
 
         return None
 
+
+    def _extract_image_token_positions(self, input_ids):
+        batch_size = input_ids.shape[0]
+        image_ranges = []
+        image_context = []
+
+        for batch_idx in range(batch_size):
+            batch_ranges = []
+            # Pure tensor operations on the GPU
+            starts = torch.nonzero(input_ids[batch_idx] == self.vision_start_id, as_tuple=True)[0]
+            ends = torch.nonzero(input_ids[batch_idx] == self.vision_end_id, as_tuple=True)[0]
+            context_tokens = torch.nonzero(input_ids[batch_idx] == self.vision_context_id, as_tuple=True)[0]
+
+            if len(context_tokens)<len(starts) or len(context_tokens)<1:
+                image_ranges.append([])
+                image_context.append([])
+                continue
+            
+            if len(starts) != len(ends):
+                eval_logger.warning(
+                    f"Batch {batch_idx}: Mismatched vision tokens - "
+                    f"{len(starts)} starts vs {len(ends)} ends"
+                )
+                # sometimes happens that the image delimiters apear as part of the question. (e.g. "(...) The total number of <img> tags found on the (...)")
+                # In this case we sill only take those delimiters that have context_tokens after start and end
+                context_tokens_set = set(context_tokens.tolist())
+                new_starts, new_ends = [], []
+                for start, end in zip(starts.tolist(), ends.tolist()):
+                    if start+1 in context_tokens_set and end-1 in context_tokens_set:
+                        new_starts.append(start)
+                        new_ends.append(end)
+                starts = new_starts
+                ends = new_ends
+
+                if len(starts) != len(ends):
+                    eval_logger.warning(
+                        f"Second time Batch {batch_idx}: Mismatched vision tokens - "
+                        f"{len(starts)} starts vs {len(ends)} ends"
+                    )
+            
+            for start, end in zip(starts, ends):
+                # Store range (inclusive of start, inclusive of end)
+                # The range includes both delimiter tokens and the image tokens between them
+                if isinstance(start, torch.Tensor):
+                    start_val = start.item()
+                else:
+                    start_val = start
+
+                if isinstance(end, torch.Tensor):
+                    end_val = end.item()
+                else:
+                    end_val = end
+
+                batch_ranges.append((start_val, end_val + 1))
+            
+            image_ranges.append(batch_ranges)
+            image_context.append(context_tokens)
+            
+        return image_ranges, image_context
+    
+
     def _register_attention_hooks(self) -> None:
+
+        # Hook generate to get input_ids
+        original_generate = self.model.generate
+
+        def hooked_generate(*args, **kwargs):
+            input_ids = kwargs.get("input_ids", args[0] if len(args) > 0 else None)
+            if isinstance(input_ids, torch.Tensor) and input_ids.ndim >= 2:
+                q_len = input_ids.shape[1]
+                if q_len > 1: # Prefill phase
+                    self.image_token_indices, self.image_token_context_indices = self._extract_image_token_positions(input_ids) 
+                else:
+                    self.image_token_indices, self.image_token_context_indices = None, None
+
+            return original_generate(*args, **kwargs)
+
+        self.model.generate = hooked_generate
+
+        # Register attention layers hooks
         layers = self._resolve_decoder_layers()
         if layers is None:
             raise RuntimeError("Could not find attention layers to register mask hooks.")
@@ -190,55 +281,6 @@ class InternVL3_MaskAttention(InternVL3):
     def __del__(self):
         self._remove_hooks()
 
-    def _get_tokens_per_patch(self) -> int:
-        """Infer how many LM tokens represent one visual patch in InternVL."""
-        for obj in (self.model, self._config):
-            for attr in ("num_image_token", "vision_token_num", "image_token_num"):
-                if hasattr(obj, attr):
-                    value = int(getattr(obj, attr))
-                    if value > 0:
-                        return value
-
-        # Common InternVL default; used only as fallback when attrs are absent.
-        return 256
-
-    def _estimate_image_token_indices(self, q_len: int) -> Optional[List[List[Dict[str, int]]]]:
-        """Estimate image token spans for the current sample.
-
-        InternVL's `chat(...)` does not expose exact per-image LM token boundaries,
-        so we estimate contiguous visual blocks based on patch counts.
-        If the estimate is not plausible, masking is skipped.
-        """
-        if not self._pending_num_patches_list:
-            return None
-
-        tokens_per_patch = self._get_tokens_per_patch()
-        per_image_tokens = [int(n) * tokens_per_patch for n in self._pending_num_patches_list]
-        total_image_tokens = sum(per_image_tokens)
-
-        if total_image_tokens <= 0:
-            return None
-
-        # Conservative guard: if estimate exceeds sequence length, skip masking.
-        if total_image_tokens >= q_len:
-            eval_logger.warning(
-                "[InternVL3_MaskAttention] Estimated image tokens exceed sequence length; skipping mask. "
-                f"estimated={total_image_tokens}, q_len={q_len}."
-            )
-            return None
-
-        # InternVL prompt construction typically places visual blocks before text.
-        spans: List[Dict[str, int]] = []
-        cursor = 0
-        for token_count in per_image_tokens:
-            start = cursor
-            end = min(cursor + token_count, q_len)
-            if end > start:
-                spans.append({"start": start, "end": end})
-            cursor = end
-
-        return [spans] if len(spans) > 1 else None
-
     def _create_attention_mask_hook(self, layer_idx: int):
         def hook(module, args, kwargs):
             hidden_states = kwargs.get("hidden_states", args[0] if len(args) > 0 else None)
@@ -251,10 +293,8 @@ class InternVL3_MaskAttention(InternVL3):
             if q_len == 1:
                 return args, kwargs
 
-            if self.image_token_indices is None:
-                self.image_token_indices = self._estimate_image_token_indices(q_len)
-
-            if not self.image_token_indices:
+            # Skip if image index not saved
+            if not self.image_token_indices or not self.image_token_context_indices:
                 return args, kwargs
 
             attention_mask = kwargs.get("attention_mask", args[1] if len(args) > 1 else None)
@@ -267,6 +307,7 @@ class InternVL3_MaskAttention(InternVL3):
                     q_len=q_len,
                     kv_len=kv_len,
                     batch_image_indices=self.image_token_indices,
+                    batch_image_context_indices=self.image_token_context_indices,
                     device=device,
                     dtype=hidden_states.dtype,
                 )
@@ -283,12 +324,12 @@ class InternVL3_MaskAttention(InternVL3):
         q_len: int,
         kv_len: int,
         batch_image_indices: List[List[Dict[str, int]]],
+        batch_image_context_indices: List[List[Dict[str, int]]],
         device: torch.device,
         dtype: torch.dtype,
     ) -> torch.Tensor:
         """Create additive mask with -inf over cross-image attention blocks."""
         # mask = torch.zeros(batch_size, 1, q_len, kv_len, device=device, dtype=dtype)
-
         # Start with causal mask only — much cheaper than full zeros + fill
         causal = torch.triu(
             torch.full((q_len, kv_len), torch.finfo(dtype).min, device=device, dtype=dtype),
@@ -297,123 +338,33 @@ class InternVL3_MaskAttention(InternVL3):
         mask = causal.unsqueeze(0).unsqueeze(0).expand(batch_size, 1, -1, -1).clone()
         
         min_val = torch.finfo(dtype).min
+        # For each batch item
         for b in range(batch_size):
             if b >= len(batch_image_indices):
                 continue
 
             spans = batch_image_indices[b]
+            in_img = batch_image_context_indices[b]
             if len(spans) <= 1:
                 continue
-
-            for i, span_i in enumerate(spans):
-                for j, span_j in enumerate(spans):
-                    if i == j:
+            
+            # Block attention between different images
+            for i, (start_i, end_i) in enumerate(spans):
+                for j, (start_j, end_j) in enumerate(spans):
+                    if i == j: # Same image
                         continue
-
-                    si, ei = min(span_i["start"], q_len), min(span_i["end"], q_len)
-                    sj, ej = min(span_j["start"], kv_len), min(span_j["end"], kv_len)
+                    
+                    si, ei = max(start_i, 0), min(end_i, q_len)
+                    sj, ej = max(start_j, 0), min(end_j, kv_len)
                     if si < ei and sj < ej:
                         mask[b, 0, si:ei, sj:ej] = min_val
+                    else:
+                        eval_logger.warning(f"[InternVL3_MaskAttention] Mask intervals are incorrect \n \
+                                           \t start_i: {start_i} -> {si}, end_i: {end_i} -> {ei} \n \
+                                           \t start_j: {start_j} -> {sj}, end_j: {end_j} -> {ej} .")
+
 
         # Keep causal behavior explicit for models/layers expecting additive masks.
         # causal = torch.triu(torch.ones((q_len, kv_len), device=device, dtype=torch.bool), diagonal=1)
         # mask = mask.masked_fill(causal, min_val)
         return mask
-
-    def generate_until(self, requests: List[Instance]) -> List[str]:
-        """InternVL3 generation with optional cross-image attention masking."""
-        res: List[str] = []
-        pbar = tqdm(total=len(requests), disable=(self.rank != 0), desc="Model Responding")
-
-        for contexts, gen_kwargs, doc_to_visual, doc_id, task, split in [reg.args for reg in requests]:
-            if "until" in gen_kwargs:
-                gen_kwargs.pop("until")
-            for k, v in DEFAULT_GEN_KWARGS.items():
-                if k not in gen_kwargs:
-                    gen_kwargs[k] = v
-
-            pop_keys = [k for k in gen_kwargs.keys() if k not in DEFAULT_GEN_KWARGS]
-            for k in pop_keys:
-                gen_kwargs.pop(k)
-
-            visuals = [doc_to_visual(self.task_dict[task][split][doc_id])]
-            visuals = self.flatten(visuals)
-
-            # Reset per-sample tracking used by hooks.
-            self.image_token_indices = None
-            self._pending_num_patches_list = None
-            self._cached_mask = None
-
-            if self.modality == "image":
-                if visuals:
-                    image_num = len(visuals)
-                    dynamic_max_num = max(1, min(self.max_num, self.total_max_num // image_num))
-
-                    processed_visuals = [load_image(visual, max_num=dynamic_max_num).to(torch.bfloat16).to(self._device) for visual in visuals]
-                    pixel_values = torch.cat(processed_visuals, dim=0)
-                    num_patches_list = [v.size(0) for v in processed_visuals]
-
-                    existing_tags = contexts.count("<image>")
-                    if existing_tags == 0:
-                        image_tokens = " ".join(["<image>"] * len(processed_visuals))
-                        contexts = image_tokens + "\n" + contexts
-                    elif existing_tags != len(processed_visuals):
-                        eval_logger.warning(
-                            f"[InternVL3_MaskAttention] Token mismatch: {existing_tags} tags in text, "
-                            f"{len(processed_visuals)} images provided. Prepending image tags."
-                        )
-                        image_tokens = " ".join(["<image>"] * len(processed_visuals))
-                        contexts = image_tokens + "\n" + contexts
-
-                    if self.mask_layers:
-                        self._pending_num_patches_list = num_patches_list
-                else:
-                    pixel_values = None
-                    num_patches_list = None
-
-                response, _ = self.model.chat(
-                    self.tokenizer,
-                    pixel_values,
-                    contexts,
-                    gen_kwargs,
-                    num_patches_list=num_patches_list,
-                    history=None,
-                    return_history=True,
-                )
-
-            elif self.modality == "video":
-                assert len(visuals) == 1, f"Only one video is supported, but got {len(visuals)} videos."
-                video_path = visuals[0]
-
-                dynamic_max_num = max(1, min(self.max_num, self.total_max_num // self.num_frame))
-                pixel_values, num_patches_list = load_video(video_path, num_segments=self.num_frame, max_num=dynamic_max_num)
-                pixel_values = pixel_values.to(torch.bfloat16).to(self._device)
-                video_prefix = "".join([f"Frame{i + 1}: <image>\n" for i in range(len(num_patches_list))])
-                question = video_prefix + contexts
-
-                # Masking is intentionally disabled for video mode until exact span
-                # tracking is added for frame-level visual token blocks.
-                response, _ = self.model.chat(
-                    self.tokenizer,
-                    pixel_values,
-                    question,
-                    gen_kwargs,
-                    num_patches_list=num_patches_list,
-                    history=None,
-                    return_history=True,
-                )
-            else:
-                raise ValueError(f"Unsupported modality: {self.modality}")
-
-            res.append(response)
-            torch.cuda.empty_cache()
-            pbar.update(1)
-
-        pbar.close()
-        return res
-
-    def loglikelihood(self, requests: List[Instance]) -> List[Tuple[float, bool]]:
-        raise NotImplementedError("Loglikelihood is not implemented for InternVL3_MaskAttention.")
-
-    def generate_until_multi_round(self, requests: List[Instance]) -> List[str]:
-        raise NotImplementedError("Multi-round generation is not implemented for InternVL3_MaskAttention.")
