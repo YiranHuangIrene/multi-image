@@ -320,6 +320,8 @@ class InternVLHf(lmms):
             if self.accelerator.is_main_process and doc_id[0] % 100 == 0:
                 eval_logger.debug(f"Generated text for doc ID {doc_id[0]}:\n\n{answers}\n")
 
+            if isinstance(answers, list) and len(answers)==1:
+                answers = answers[0]
             res.append(answers)
             self.cache_hook.add_partial("generate_until", (text, gen_kwargs), answers)
             pbar.update(1)
