@@ -2,6 +2,7 @@ import base64
 import re
 from io import BytesIO
 from typing import List, Optional, Tuple, Union
+import os
 
 import decord
 import numpy as np
@@ -91,8 +92,19 @@ class Qwen2_5_VL(lmms):
         # Add attention implementation if specified
         if attn_implementation is not None:
             model_kwargs["attn_implementation"] = attn_implementation
-
-        self._model = Qwen2_5_VLForConditionalGeneration.from_pretrained(pretrained, **model_kwargs).eval()
+        try:
+            self._model = Qwen2_5_VLForConditionalGeneration.from_pretrained(pretrained, **model_kwargs).eval()
+            self.processor = AutoProcessor.from_pretrained(pretrained, max_pixels=max_pixels, min_pixels=min_pixels)
+            self._tokenizer = AutoTokenizer.from_pretrained(pretrained)
+        except OSError as e:
+            model_family = pretrained.split('/')[0]
+            model_name = pretrained.split('/')[1]
+            local_path = os.path.join(os.environ['HUGGINGFACE_HUB_CACHE'],f'models--{model_family}--{model_name}', 'snapshots')
+            model_path = os.path.join(local_path, os.listdir(local_path)[0])    
+            self._model = Qwen2_5_VLForConditionalGeneration.from_pretrained(model_path, local_files_only=True, **model_kwargs).eval()
+            self.processor = AutoProcessor.from_pretrained(model_path, max_pixels=max_pixels, min_pixels=min_pixels)
+            self._tokenizer = AutoTokenizer.from_pretrained(model_path)
+        # Load the model from local disk  
         self.max_pixels = max_pixels
         self.min_pixels = min_pixels
         self.max_num_frames = max_num_frames
@@ -101,8 +113,8 @@ class Qwen2_5_VL(lmms):
             self.reasoning_prompt = reasoning_prompt.replace("\\n", "\n")
         else:
             self.reasoning_prompt = None
-        self.processor = AutoProcessor.from_pretrained(pretrained, max_pixels=max_pixels, min_pixels=min_pixels)
-        self._tokenizer = AutoTokenizer.from_pretrained(pretrained)
+        # self.processor = AutoProcessor.from_pretrained(pretrained, max_pixels=max_pixels, min_pixels=min_pixels)
+        # self._tokenizer = AutoTokenizer.from_pretrained(pretrained)
         self.system_prompt = system_prompt
         self.interleave_visuals = interleave_visuals
 

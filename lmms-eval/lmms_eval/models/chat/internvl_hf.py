@@ -2,6 +2,7 @@ import time
 import warnings
 from datetime import timedelta
 from typing import List, Optional, Tuple
+import os
 
 import torch
 from accelerate import Accelerator, DistributedType
@@ -97,23 +98,41 @@ class InternVLHf(lmms):
         else:
             self._device = torch.device(device)
             self.device_map = device_map if device_map else device
-
-        self._model = InternVLForConditionalGeneration.from_pretrained(
-            self.path,
-            revision=revision,
-            torch_dtype=torch.bfloat16,
-            low_cpu_mem_usage=low_cpu_mem_usage,
-            attn_implementation=attn_implementation,
-            trust_remote_code=trust_remote_code,
-            device_map=self.device_map,
-        ).eval()
+        try:
+            self._model = InternVLForConditionalGeneration.from_pretrained(
+                self.path,
+                revision=revision,
+                local_files_only=True,
+                torch_dtype=torch.bfloat16,
+                low_cpu_mem_usage=low_cpu_mem_usage,
+                attn_implementation=attn_implementation,
+                trust_remote_code=trust_remote_code,
+                device_map=self.device_map,
+            ).eval()
+            self.processor = AutoProcessor.from_pretrained(
+                self.path,
+                revision=revision,
+                trust_remote_code=trust_remote_code,
+            )
+        except OSError as e:
+            model_family = pretrained.split('/')[0]
+            model_name = pretrained.split('/')[1]
+            local_path = os.path.join(os.environ['HUGGINGFACE_HUB_CACHE'],f'models--{model_family}--{model_name}', 'snapshots')
+            model_path = os.path.join(local_path, os.listdir(local_path)[0])   
+            self._model = InternVLForConditionalGeneration.from_pretrained(
+                model_path,
+                revision=revision,
+                torch_dtype=torch.bfloat16,
+                low_cpu_mem_usage=low_cpu_mem_usage,
+                attn_implementation=attn_implementation,
+                device_map=self.device_map,
+            ).eval()
+            self.processor = AutoProcessor.from_pretrained(
+                model_path,
+                revision=revision,
+                trust_remote_code=trust_remote_code,
+            )
         self._config = self._model.config
-
-        self.processor = AutoProcessor.from_pretrained(
-            self.path,
-            revision=revision,
-            trust_remote_code=trust_remote_code,
-        )
         self._tokenizer = self.processor.tokenizer
         self.use_cache = use_cache
 
