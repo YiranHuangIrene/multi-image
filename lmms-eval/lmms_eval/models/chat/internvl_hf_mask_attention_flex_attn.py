@@ -242,7 +242,6 @@ class InternVLHf_Mask_Attention_Flex_Attn(InternVLHf):
             mask_mapping = dict(base_masks)
             apply_cross_image_mask = inputs_embeds.shape[1] > 1 and self._has_cross_image_pairs
             and_mask_function = self._create_cross_image_and_mask_function() if apply_cross_image_mask else None
-
             for masked_attention_type, base_attention_type in self._masked_attention_types.items():
                 if base_attention_type not in base_masks:
                     raise ValueError(

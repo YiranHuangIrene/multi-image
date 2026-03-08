@@ -243,9 +243,7 @@ class InternVLHf_Mask_Attention(InternVLHf):
                         f"{list(base_masks.keys())}"
                     )
 
-                if and_mask_function is None:
-                    masked_mask = base_masks[base_attention_type]
-                elif base_attention_type == "full_attention":
+                if base_attention_type == "full_attention":
                     masked_mask = create_causal_mask(
                         config=self._flex_mask_config,
                         **common_mask_kwargs,
