@@ -10,8 +10,8 @@ from lmms_eval.api.registry import register_model
 from lmms_eval.models.chat.qwen2_5_vl import Qwen2_5_VL
 
 
-@register_model("qwen2_5_vl_mask_attention")
-class Qwen2_5_VL_Mask_Attention(Qwen2_5_VL):
+@register_model("qwen2_5_vl_mask_attention_flex_attn")
+class Qwen2_5_VL_Mask_Attention_Flex_Attn(Qwen2_5_VL):
     def __init__(self, mask_layers=None, **kwargs):
         super().__init__(**kwargs)
         self.mask_layers = mask_layers
@@ -20,34 +20,37 @@ class Qwen2_5_VL_Mask_Attention(Qwen2_5_VL):
         self._image_group_ids = None
         self._has_cross_image_pairs = False
         self._masked_attention_types = {}
-        self._base_text_attn_impl = None
-        self._base_mask_config = None
         self._flex_mask_config = None
 
-        if self.mask_layers not in (None, "", "none", "None"):
-            self._validate_attention_backend()
-            self.parse_mask_layers()
-            self._configure_layer_attention_types()
-            self._register_attention_hooks()
+        self._validate_attention_backend()
+        self.parse_mask_layers()
+        self._configure_layer_attention_types()
+        self._register_attention_hooks()
 
     def _validate_attention_backend(self):
         if not is_torch_flex_attn_available():
             raise RuntimeError(
-                "Cross-image masking with mask_layers requires PyTorch FlexAttention support "
+                "Cross-image masking with all-flex mode requires PyTorch FlexAttention support "
                 "(torch.nn.attention.flex_attention)."
             )
+
         language_model = self.model.model.language_model
-        self._base_text_attn_impl = language_model.config._attn_implementation
-        self._base_mask_config = language_model.config
         self._flex_mask_config = copy.copy(language_model.config)
         self._flex_mask_config._attn_implementation = "flex_attention"
-        if self._base_text_attn_impl != "flash_attention_2":
-            eval_logger.warning(
-                "Hybrid masking works best when base attn_implementation is 'flash_attention_2'. "
-                f"Current base implementation is '{self._base_text_attn_impl}'."
+
+        if language_model.config._attn_implementation != "flex_attention":
+            eval_logger.info(
+                f"Overriding language model attention backend from "
+                f"'{language_model.config._attn_implementation}' to 'flex_attention'."
             )
+        language_model.config._attn_implementation = "flex_attention"
+        language_model._attn_implementation = "flex_attention"
 
     def parse_mask_layers(self):
+        if self.mask_layers in (None, "", "none", "None"):
+            self.mask_layers_indices = []
+            return
+
         if self.mask_layers == "all":
             self.mask_layers_indices = list(range(len(self.model.model.language_model.layers)))
             return
@@ -90,15 +93,17 @@ class Qwen2_5_VL_Mask_Attention(Qwen2_5_VL):
         )
         if not self.mask_layers_indices:
             eval_logger.warning("No valid layers selected for cross-image masking after validation.")
-        for layer_idx in self.mask_layers_indices:
-            layer = layers[layer_idx]
-            base_attention_type = layer.attention_type
-            masked_attention_type = f"masked_{base_attention_type}_{layer_idx}"
-            layer.attention_type = masked_attention_type
-            self._masked_attention_types[masked_attention_type] = base_attention_type
-            # Keep unmasked layers on base backend while forcing masked layers to FlexAttention.
+
+        for layer_idx, layer in enumerate(layers):
+            # Force all layers to run with flex_attention for backend consistency.
             layer.self_attn.config = copy.copy(layer.self_attn.config)
             layer.self_attn.config._attn_implementation = "flex_attention"
+
+            if layer_idx in self.mask_layers_indices:
+                base_attention_type = layer.attention_type
+                masked_attention_type = f"masked_{base_attention_type}_{layer_idx}"
+                layer.attention_type = masked_attention_type
+                self._masked_attention_types[masked_attention_type] = base_attention_type
 
     def _extract_image_token_positions(self, input_ids):
         vision_start_id = self.model.config.vision_start_token_id
@@ -171,7 +176,7 @@ class Qwen2_5_VL_Mask_Attention(Qwen2_5_VL):
             with_kwargs=True,
         )
         self.hooks.append(language_hook)
-        eval_logger.info("Registered hooks for layer-selective cross-image masking")
+        eval_logger.info("Registered hooks for all-flex layer-selective cross-image masking")
 
     def _create_extract_indices_hook(self):
         def extract_indices_hook(module, args, kwargs):
@@ -227,11 +232,11 @@ class Qwen2_5_VL_Mask_Attention(Qwen2_5_VL):
                 base_masks = dict(attention_mask)
             else:
                 base_masks = {
-                    "full_attention": create_causal_mask(config=self._base_mask_config, **common_mask_kwargs),
+                    "full_attention": create_causal_mask(config=self._flex_mask_config, **common_mask_kwargs),
                 }
                 if module.has_sliding_layers:
                     base_masks["sliding_attention"] = create_sliding_window_causal_mask(
-                        config=self._base_mask_config, **common_mask_kwargs
+                        config=self._flex_mask_config, **common_mask_kwargs
                     )
 
             mask_mapping = dict(base_masks)
