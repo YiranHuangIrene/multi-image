@@ -11,3 +11,4 @@ wheels/
 lmms-eval/examples/docs
 *.ipynb
 lmms-eval/*.ipynb
+lmms-eval/embeddings/

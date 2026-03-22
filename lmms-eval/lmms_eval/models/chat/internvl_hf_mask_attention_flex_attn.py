@@ -13,6 +13,16 @@ from lmms_eval.models.chat.internvl_hf import InternVLHf
 @register_model("internvl_hf_mask_attention_flex_attn")
 class InternVLHf_Mask_Attention_Flex_Attn(InternVLHf):
     def __init__(self, mask_layers=None, **kwargs):
+        torch.use_deterministic_algorithms(True)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+        # Disable Triton autotuning to reduce cross-node non-determinism in
+        # flex_attention's torch.compile backend. Without this, different GPUs
+        # can select different kernel configs via timing-based benchmarks.
+        torch._inductor.config.max_autotune = False
+        torch._inductor.config.max_autotune_gemm = False
+        torch._inductor.config.coordinate_descent_tuning = False
+
         super().__init__(**kwargs)
         self.mask_layers = mask_layers
         self.hooks = []

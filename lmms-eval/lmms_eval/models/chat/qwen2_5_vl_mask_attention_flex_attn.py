@@ -13,6 +13,10 @@ from lmms_eval.models.chat.qwen2_5_vl import Qwen2_5_VL
 @register_model("qwen2_5_vl_mask_attention_flex_attn")
 class Qwen2_5_VL_Mask_Attention_Flex_Attn(Qwen2_5_VL):
     def __init__(self, mask_layers=None, **kwargs):
+        torch.use_deterministic_algorithms(True)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+
         super().__init__(**kwargs)
         self.mask_layers = mask_layers
         self.hooks = []

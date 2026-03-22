@@ -1,0 +1,1087 @@
+{
+  "0": {
+    "category_raw": "number of objects",
+    "category": "Counting",
+    "question_id": "xh_1"
+  },
+  "1": {
+    "category_raw": "num of objects",
+    "category": "Counting",
+    "question_id": "xh_2"
+  },
+  "2": {
+    "category_raw": "weather conditions in image",
+    "category": "Geography / Climate",
+    "question_id": "xh_3"
+  },
+  "3": {
+    "category_raw": "color of objects",
+    "category": "Object Properties",
+    "question_id": "xh_4"
+  },
+  "4": {
+    "category_raw": "number of objects",
+    "category": "Counting",
+    "question_id": "xh_5"
+  },
+  "5": {
+    "category_raw": "time of day in images",
+    "category": "Temporal / Seasonal",
+    "question_id": "xh_6"
+  },
+  "6": {
+    "category_raw": "number of objects",
+    "category": "Counting",
+    "question_id": "xh_7"
+  },
+  "7": {
+    "category_raw": "age estimation of objects or subjects",
+    "category": "Temporal / Seasonal",
+    "question_id": "xh_8"
+  },
+  "8": {
+    "category_raw": "natural versus artificial elements in images",
+    "category": "Nature / Animals",
+    "question_id": "xh_9"
+  },
+  "9": {
+    "category_raw": "lighting and shadow effects in images",
+    "category": "Spatial / Physical",
+    "question_id": "xh_10"
+  },
+  "10": {
+    "category_raw": "geographical location implications in images",
+    "category": "Geography / Climate",
+    "question_id": "xh_11"
+  },
+  "11": {
+    "category_raw": "economic or social status indicators in images",
+    "category": "Emotion / Social",
+    "question_id": "xh_12"
+  },
+  "12": {
+    "category_raw": "emotional tone or mood in images",
+    "category": "Emotion / Social",
+    "question_id": "xh_13"
+  },
+  "13": {
+    "category_raw": "recreational and leisure activities in various environments",
+    "category": "Other",
+    "question_id": "xh_14"
+  },
+  "14": {
+    "category_raw": "common sense",
+    "category": "Common Sense",
+    "question_id": "xh_15"
+  },
+  "15": {
+    "category_raw": "seasonal attributes in images",
+    "category": "Temporal / Seasonal",
+    "question_id": "xh_16"
+  },
+  "16": {
+    "category_raw": "Technological Advancements",
+    "category": "Technology",
+    "question_id": "xh_17"
+  },
+  "17": {
+    "category_raw": "language understanding",
+    "category": "Pattern / Language",
+    "question_id": "xh_18"
+  },
+  "18": {
+    "category_raw": "motion or static state of objects",
+    "category": "Spatial / Physical",
+    "question_id": "xh_19"
+  },
+  "19": {
+    "category_raw": "language understanding",
+    "category": "Pattern / Language",
+    "question_id": "xh_20"
+  },
+  "20": {
+    "category_raw": "cultural_symbols",
+    "category": "Artistic / Cultural",
+    "question_id": "xh_21"
+  },
+  "21": {
+    "category_raw": "environmental_concerns",
+    "category": "Other",
+    "question_id": "xh_22"
+  },
+  "22": {
+    "category_raw": "weather_conditions",
+    "category": "Geography / Climate",
+    "question_id": "xh_23"
+  },
+  "23": {
+    "category_raw": "wildlife_habitat",
+    "category": "Nature / Animals",
+    "question_id": "xh_24"
+  },
+  "24": {
+    "category_raw": "material of objects",
+    "category": "Object Properties",
+    "question_id": "xh_25"
+  },
+  "25": {
+    "category_raw": "difference description",
+    "category": "Difference Description",
+    "question_id": "xh_26"
+  },
+  "26": {
+    "category_raw": "common sense",
+    "category": "Common Sense",
+    "question_id": "xh_27"
+  },
+  "27": {
+    "category_raw": "number of objects",
+    "category": "Counting",
+    "question_id": "xh_28"
+  },
+  "28": {
+    "category_raw": "motion or static state of objects",
+    "category": "Spatial / Physical",
+    "question_id": "xh_29"
+  },
+  "29": {
+    "category_raw": "Human-Animal Interaction",
+    "category": "Nature / Animals",
+    "question_id": "xh_30"
+  },
+  "30": {
+    "category_raw": "STEM reasoning",
+    "category": "STEM Reasoning",
+    "question_id": "xh_31"
+  },
+  "31": {
+    "category_raw": "STEM reasoning",
+    "category": "STEM Reasoning",
+    "question_id": "xh_32"
+  },
+  "32": {
+    "category_raw": "STEM reasoning",
+    "category": "STEM Reasoning",
+    "question_id": "xh_33"
+  },
+  "33": {
+    "category_raw": "STEM reasoning",
+    "category": "STEM Reasoning",
+    "question_id": "xh_34"
+  },
+  "34": {
+    "category_raw": "pattern recognition",
+    "category": "Pattern / Language",
+    "question_id": "xh_35"
+  },
+  "35": {
+    "category_raw": "difference description",
+    "category": "Difference Description",
+    "question_id": "xh_36"
+  },
+  "36": {
+    "category_raw": "safety considerations in changing object placements",
+    "category": "Other",
+    "question_id": "xh_37"
+  },
+  "37": {
+    "category_raw": "cost and economic value of objects in diverse contexts",
+    "category": "Other",
+    "question_id": "xh_38"
+  },
+  "38": {
+    "category_raw": "maintenance and care requirements of objects",
+    "category": "Other",
+    "question_id": "xh_39"
+  },
+  "39": {
+    "category_raw": "maintenance and care requirements of objects",
+    "category": "Other",
+    "question_id": "xh_40"
+  },
+  "40": {
+    "category_raw": "seasonal activities and their appropriate gear or settings",
+    "category": "Temporal / Seasonal",
+    "question_id": "xh_41"
+  },
+  "41": {
+    "category_raw": "astronomical phenomena visible or inferred in images",
+    "category": "Other",
+    "question_id": "xh_42"
+  },
+  "42": {
+    "category_raw": "climate change",
+    "category": "Geography / Climate",
+    "question_id": "xh_43"
+  },
+  "43": {
+    "category_raw": "natural versus artificial elements in images",
+    "category": "Nature / Animals",
+    "question_id": "xh_44"
+  },
+  "44": {
+    "category_raw": "difference description",
+    "category": "Difference Description",
+    "question_id": "xh_45"
+  },
+  "45": {
+    "category_raw": "architectural_styles",
+    "category": "Other",
+    "question_id": "xh_46"
+  },
+  "46": {
+    "category_raw": "Emotional Impact",
+    "category": "Emotion / Social",
+    "question_id": "xh_47"
+  },
+  "47": {
+    "category_raw": "animal_behavior",
+    "category": "Nature / Animals",
+    "question_id": "xh_48"
+  },
+  "48": {
+    "category_raw": "historical context",
+    "category": "Historical",
+    "question_id": "xh_49"
+  },
+  "49": {
+    "category_raw": "common sense",
+    "category": "Common Sense",
+    "question_id": "xh_50"
+  },
+  "50": {
+    "category_raw": "artistic_styles",
+    "category": "Artistic / Cultural",
+    "question_id": "m_1"
+  },
+  "51": {
+    "category_raw": "geographical_features",
+    "category": "Geography / Climate",
+    "question_id": "m_2"
+  },
+  "52": {
+    "category_raw": "architectural_styles",
+    "category": "Other",
+    "question_id": "m_3"
+  },
+  "53": {
+    "category_raw": "geographical location",
+    "category": "Geography / Climate",
+    "question_id": "m_4"
+  },
+  "54": {
+    "category_raw": "texture of objects",
+    "category": "Object Properties",
+    "question_id": "m_5"
+  },
+  "55": {
+    "category_raw": "motion or static state of objects",
+    "category": "Spatial / Physical",
+    "question_id": "m_6"
+  },
+  "56": {
+    "category_raw": "technological aspects in images",
+    "category": "Technology",
+    "question_id": "m_7"
+  },
+  "57": {
+    "category_raw": "weather conditions in images",
+    "category": "Geography / Climate",
+    "question_id": "m_8"
+  },
+  "58": {
+    "category_raw": "seasonal attributes in images",
+    "category": "Temporal / Seasonal",
+    "question_id": "m_9"
+  },
+  "59": {
+    "category_raw": "time of day in images",
+    "category": "Temporal / Seasonal",
+    "question_id": "m_10"
+  },
+  "60": {
+    "category_raw": "artistic style or genre of images",
+    "category": "Artistic / Cultural",
+    "question_id": "m_11"
+  },
+  "61": {
+    "category_raw": "historical_context",
+    "category": "Historical",
+    "question_id": "m_12"
+  },
+  "62": {
+    "category_raw": "cultural_influence",
+    "category": "Artistic / Cultural",
+    "question_id": "m_13"
+  },
+  "63": {
+    "category_raw": "Clothing style and period",
+    "category": "Artistic / Cultural",
+    "question_id": "m_14"
+  },
+  "64": {
+    "category_raw": "seasonal activities and their appropriate gear or settings",
+    "category": "Temporal / Seasonal",
+    "question_id": "m_15"
+  },
+  "65": {
+    "category_raw": "cultural_influence",
+    "category": "Artistic / Cultural",
+    "question_id": "m_16"
+  },
+  "66": {
+    "category_raw": "human_activity",
+    "category": "Other",
+    "question_id": "m_17"
+  },
+  "67": {
+    "category_raw": "number of objects",
+    "category": "Counting",
+    "question_id": "m_18"
+  },
+  "68": {
+    "category_raw": "weight of objects",
+    "category": "Object Properties",
+    "question_id": "m_19"
+  },
+  "69": {
+    "category_raw": "symmetry and asymmetry in objects",
+    "category": "Object Properties",
+    "question_id": "m_20"
+  },
+  "70": {
+    "category_raw": "adaptability of subjects or objects in new environments",
+    "category": "Other Reasoning",
+    "question_id": "dj_1"
+  },
+  "71": {
+    "category_raw": "sequence understanding",
+    "category": "Other Reasoning",
+    "question_id": "dj_2"
+  },
+  "72": {
+    "category_raw": "counting",
+    "category": "Counting",
+    "question_id": "dj_3"
+  },
+  "73": {
+    "category_raw": "recognizing similarity",
+    "category": "Pattern / Language",
+    "question_id": "dj_4"
+  },
+  "74": {
+    "category_raw": "cause and effect",
+    "category": "Other Reasoning",
+    "question_id": "dj_5"
+  },
+  "75": {
+    "category_raw": "weight comparison",
+    "category": "Object Properties",
+    "question_id": "dj_6"
+  },
+  "76": {
+    "category_raw": "price comparison",
+    "category": "Other Reasoning",
+    "question_id": "dj_7"
+  },
+  "77": {
+    "category_raw": "Logical Reasoning",
+    "category": "Logical Reasoning",
+    "question_id": "w_1"
+  },
+  "78": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_2"
+  },
+  "79": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_3"
+  },
+  "80": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_4"
+  },
+  "81": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_5"
+  },
+  "82": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_6"
+  },
+  "83": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_7"
+  },
+  "84": {
+    "category_raw": "Logical Reasoning",
+    "category": "Logical Reasoning",
+    "question_id": "w_8"
+  },
+  "85": {
+    "category_raw": "Logical Reasoning",
+    "category": "Logical Reasoning",
+    "question_id": "w_9"
+  },
+  "86": {
+    "category_raw": "Complex Reasoning",
+    "category": "Complex Reasoning",
+    "question_id": "w_10"
+  },
+  "87": {
+    "category_raw": "Logical Reasoning",
+    "category": "Logical Reasoning",
+    "question_id": "w_11"
+  },
+  "88": {
+    "category_raw": "Complex Reasoning",
+    "category": "Complex Reasoning",
+    "question_id": "w_12"
+  },
+  "89": {
+    "category_raw": "Complex Reasoning",
+    "category": "Complex Reasoning",
+    "question_id": "w_13"
+  },
+  "90": {
+    "category_raw": "Logical Reasoning",
+    "category": "Logical Reasoning",
+    "question_id": "w_14"
+  },
+  "91": {
+    "category_raw": "Complex Reasoning",
+    "category": "Complex Reasoning",
+    "question_id": "w_15"
+  },
+  "92": {
+    "category_raw": "Complex Reasoning",
+    "category": "Complex Reasoning",
+    "question_id": "w_16"
+  },
+  "93": {
+    "category_raw": "Logical Reasoning",
+    "category": "Logical Reasoning",
+    "question_id": "w_17"
+  },
+  "94": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_18"
+  },
+  "95": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_19"
+  },
+  "96": {
+    "category_raw": "Complex Reasoning",
+    "category": "Complex Reasoning",
+    "question_id": "w_20"
+  },
+  "97": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_21"
+  },
+  "98": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_22"
+  },
+  "99": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_23"
+  },
+  "100": {
+    "category_raw": "Logical Reasoning",
+    "category": "Logical Reasoning",
+    "question_id": "w_24"
+  },
+  "101": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_25"
+  },
+  "102": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_26"
+  },
+  "103": {
+    "category_raw": "Logical Reasoning",
+    "category": "Logical Reasoning",
+    "question_id": "w_27"
+  },
+  "104": {
+    "category_raw": "Complex Reasoning",
+    "category": "Complex Reasoning",
+    "question_id": "w_28"
+  },
+  "105": {
+    "category_raw": "Logical Reasoning",
+    "category": "Logical Reasoning",
+    "question_id": "w_29"
+  },
+  "106": {
+    "category_raw": "Complex Reasoning",
+    "category": "Complex Reasoning",
+    "question_id": "w_30"
+  },
+  "107": {
+    "category_raw": "Complex Reasoning",
+    "category": "Complex Reasoning",
+    "question_id": "w_31"
+  },
+  "108": {
+    "category_raw": "Logical Reasoning",
+    "category": "Logical Reasoning",
+    "question_id": "w_32"
+  },
+  "109": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_33"
+  },
+  "110": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_34"
+  },
+  "111": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_35"
+  },
+  "112": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_36"
+  },
+  "113": {
+    "category_raw": "Complex Reasoning",
+    "category": "Complex Reasoning",
+    "question_id": "w_37"
+  },
+  "114": {
+    "category_raw": "Complex Reasoning",
+    "category": "Complex Reasoning",
+    "question_id": "w_38"
+  },
+  "115": {
+    "category_raw": "Logical Reasoning",
+    "category": "Logical Reasoning",
+    "question_id": "w_39"
+  },
+  "116": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_40"
+  },
+  "117": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_41"
+  },
+  "118": {
+    "category_raw": "Logical Reasoning",
+    "category": "Logical Reasoning",
+    "question_id": "w_42"
+  },
+  "119": {
+    "category_raw": "Complex Reasoning",
+    "category": "Complex Reasoning",
+    "question_id": "w_43"
+  },
+  "120": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_44"
+  },
+  "121": {
+    "category_raw": "Complex Reasoning",
+    "category": "Complex Reasoning",
+    "question_id": "w_45"
+  },
+  "122": {
+    "category_raw": "Complex Reasoning",
+    "category": "Complex Reasoning",
+    "question_id": "w_46"
+  },
+  "123": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_47"
+  },
+  "124": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_48"
+  },
+  "125": {
+    "category_raw": "Difference Description",
+    "category": "Difference Description",
+    "question_id": "w_49"
+  },
+  "126": {
+    "category_raw": "Complex Reasoning",
+    "category": "Complex Reasoning",
+    "question_id": "w_50"
+  },
+  "127": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_1"
+  },
+  "128": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_2"
+  },
+  "129": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_3"
+  },
+  "130": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_4"
+  },
+  "131": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_5"
+  },
+  "132": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_6"
+  },
+  "133": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_7"
+  },
+  "134": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_8"
+  },
+  "135": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_9"
+  },
+  "136": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_10"
+  },
+  "137": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_11"
+  },
+  "138": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_12"
+  },
+  "139": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_13"
+  },
+  "140": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_14"
+  },
+  "141": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_15"
+  },
+  "142": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_16"
+  },
+  "143": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_17"
+  },
+  "144": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_18"
+  },
+  "145": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_19"
+  },
+  "146": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_20"
+  },
+  "147": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_21"
+  },
+  "148": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_22"
+  },
+  "149": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_23"
+  },
+  "150": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_24"
+  },
+  "151": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_25"
+  },
+  "152": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_26"
+  },
+  "153": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_27"
+  },
+  "154": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_28"
+  },
+  "155": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_29"
+  },
+  "156": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_30"
+  },
+  "157": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_31"
+  },
+  "158": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_32"
+  },
+  "159": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_33"
+  },
+  "160": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_34"
+  },
+  "161": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_35"
+  },
+  "162": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_36"
+  },
+  "163": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_37"
+  },
+  "164": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_38"
+  },
+  "165": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_39"
+  },
+  "166": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_40"
+  },
+  "167": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_41"
+  },
+  "168": {
+    "category_raw": "Common Sense",
+    "category": "Common Sense",
+    "question_id": "wc_42"
+  },
+  "169": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_43"
+  },
+  "170": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_44"
+  },
+  "171": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_45"
+  },
+  "172": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_46"
+  },
+  "173": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_47"
+  },
+  "174": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_48"
+  },
+  "175": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_49"
+  },
+  "176": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_51"
+  },
+  "177": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_53"
+  },
+  "178": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_55"
+  },
+  "179": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_56"
+  },
+  "180": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_57"
+  },
+  "181": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_58"
+  },
+  "182": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_60"
+  },
+  "183": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_61"
+  },
+  "184": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_62"
+  },
+  "185": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_63"
+  },
+  "186": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_64"
+  },
+  "187": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_65"
+  },
+  "188": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_67"
+  },
+  "189": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_69"
+  },
+  "190": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_71"
+  },
+  "191": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_73"
+  },
+  "192": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_74"
+  },
+  "193": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_76"
+  },
+  "194": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_78"
+  },
+  "195": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_81"
+  },
+  "196": {
+    "category_raw": "Image Reasoning",
+    "category": "Image Reasoning",
+    "question_id": "wc_82"
+  },
+  "197": {
+    "category_raw": "animal_species",
+    "category": "Nature / Animals",
+    "question_id": "cw_1"
+  },
+  "198": {
+    "category_raw": "emotional_tone",
+    "category": "Emotion / Social",
+    "question_id": "cw_2"
+  },
+  "199": {
+    "category_raw": "Flora and fauna",
+    "category": "Nature / Animals",
+    "question_id": "cw_3"
+  },
+  "200": {
+    "category_raw": "Climate and geography",
+    "category": "Geography / Climate",
+    "question_id": "cw_4"
+  },
+  "201": {
+    "category_raw": "geographical location",
+    "category": "Geography / Climate",
+    "question_id": "cw_5"
+  },
+  "202": {
+    "category_raw": "emotional_tone",
+    "category": "Emotion / Social",
+    "question_id": "cw_6"
+  },
+  "203": {
+    "category_raw": "natural_elements",
+    "category": "Nature / Animals",
+    "question_id": "cw_7"
+  },
+  "204": {
+    "category_raw": "number of objects",
+    "category": "Counting",
+    "question_id": "cw_8"
+  },
+  "205": {
+    "category_raw": "number of objects",
+    "category": "Counting",
+    "question_id": "cw_9"
+  },
+  "206": {
+    "category_raw": "language understanding",
+    "category": "Pattern / Language",
+    "question_id": "cw_10"
+  },
+  "207": {
+    "category_raw": "material of objects",
+    "category": "Object Properties",
+    "question_id": "cw_11"
+  },
+  "208": {
+    "category_raw": "orientation of objects",
+    "category": "Object Properties",
+    "question_id": "cw_12"
+  },
+  "209": {
+    "category_raw": "pattern recognition",
+    "category": "Pattern / Language",
+    "question_id": "cw_13"
+  },
+  "210": {
+    "category_raw": "pattern recognition",
+    "category": "Pattern / Language",
+    "question_id": "cw_14"
+  },
+  "211": {
+    "category_raw": "age estimation of objects or subjects",
+    "category": "Temporal / Seasonal",
+    "question_id": "cw_15"
+  },
+  "212": {
+    "category_raw": "symmetry and asymmetry in objects",
+    "category": "Object Properties",
+    "question_id": "cw_16"
+  },
+  "213": {
+    "category_raw": "environmental context of objects",
+    "category": "Other",
+    "question_id": "cw_17"
+  },
+  "214": {
+    "category_raw": "historical or temporal context of images",
+    "category": "Historical",
+    "question_id": "cw_18"
+  },
+  "215": {
+    "category_raw": "technological aspects in images",
+    "category": "Technology",
+    "question_id": "cw_19"
+  },
+  "216": {
+    "category_raw": "seasonal attributes in images",
+    "category": "Temporal / Seasonal",
+    "question_id": "cw_20"
+  }
+}
